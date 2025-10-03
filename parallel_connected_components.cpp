@@ -6,12 +6,7 @@
  * CSS311 - Parallel and Distributed Computing Assignment
  */
 
-#include <iostream>
-#include <vector>
-#include <algorithm>
-#include <chrono>
-#include <map>
-#include <set>
+#include <bits/stdc++.h>
 #include <omp.h>
 
 using namespace std;
@@ -190,22 +185,92 @@ void printComponents(const vector<int>& parent, int n) {
     }
 }
 
-// Compare serial vs parallel performance
-void comparePerformance(Graph& g, const string& testName, int numThreads) {
-    cout << "\n========== " << testName << " ==========\n";
+int main() {
+    cout << "=================================================\n";
+    cout << "  Parallel Connected Components Algorithm B\n";
+    cout << "  OpenMP Implementation\n";
+    cout << "  Based on Liu & Tarjan (2022)\n";
+    cout << "=================================================\n\n";
+    
+    int numVertices, numEdges;
+    
+    // Input number of vertices
+    cout << "Enter the number of vertices: ";
+    cin >> numVertices;
+    
+    // Validate input
+    if (numVertices <= 0) {
+        cout << "Error: Number of vertices must be positive!\n";
+        return 1;
+    }
+    
+    // Input number of edges
+    cout << "Enter the number of edges: ";
+    cin >> numEdges;
+    
+    // Validate input
+    if (numEdges < 0) {
+        cout << "Error: Number of edges cannot be negative!\n";
+        return 1;
+    }
+    
+    // Create graph
+    Graph g(numVertices);
+    
+    cout << "\nEnter the edges (format: vertex1 vertex2):\n";
+    cout << "Note: Vertices should be numbered from 0 to " << (numVertices - 1) << "\n\n";
+    
+    // Input edges
+    for (int i = 0; i < numEdges; i++) {
+        int u, v;
+        cout << "Edge " << (i + 1) << ": ";
+        cin >> u >> v;
+        
+        // Validate edge input
+        if (u < 0 || u >= numVertices || v < 0 || v >= numVertices) {
+            cout << "Error: Vertex numbers must be between 0 and " << (numVertices - 1) << "!\n";
+            cout << "Please enter this edge again.\n";
+            i--;
+            continue;
+        }
+        
+        g.addEdge(u, v);
+    }
+    
+    // Get thread configuration
+    int maxThreads = omp_get_max_threads();
+    cout << "\n=================================================\n";
+    cout << "   Thread Configuration\n";
+    cout << "=================================================\n";
+    cout << "System has " << maxThreads << " threads available\n";
+    
+    int numThreads;
+    cout << "Enter number of threads to use (1-" << maxThreads << "): ";
+    cin >> numThreads;
+    
+    if (numThreads <= 0 || numThreads > maxThreads) {
+        cout << "Invalid thread count. Using default: " << min(8, maxThreads) << " threads\n";
+        numThreads = min(8, maxThreads);
+    }
+    
+    cout << "\n=================================================\n";
+    cout << "   Processing Graph...\n";
+    cout << "=================================================\n\n";
+    
     g.printGraph();
     
-    // Create copies for each version
+    // Create copies for serial and parallel versions
     Graph gSerial = g;
     Graph gParallel = g;
     
-    // Serial version
+    // ===== SERIAL VERSION =====
+    cout << "\n--- Running SERIAL Version ---\n";
     int serialIterations = 0;
     auto startSerial = high_resolution_clock::now();
     
     // Simple serial implementation
-    vector<int> parentSerial(g.numVertices);
-    for (int i = 0; i < g.numVertices; i++) {
+    vector<int> parentSerial(numVertices);
+    for (int i = 0; i < numVertices; i++) {
         parentSerial[i] = i;
     }
     
@@ -258,169 +323,41 @@ void comparePerformance(Graph& g, const string& testName, int numThreads) {
     auto endSerial = high_resolution_clock::now();
     auto durationSerial = duration_cast<microseconds>(endSerial - startSerial);
     
-    // Parallel version
+    cout << "Serial execution completed!\n";
+    cout << "  Iterations: " << serialIterations << "\n";
+    cout << "  Time: " << durationSerial.count() / 1000.0 << " ms\n";
+    
+    // ===== PARALLEL VERSION =====
+    cout << "\n--- Running PARALLEL Version (" << numThreads << " threads) ---\n";
     int parallelIterations = 0;
     auto startParallel = high_resolution_clock::now();
     vector<int> parentParallel = findConnectedComponentsParallel(gParallel, parallelIterations, numThreads);
     auto endParallel = high_resolution_clock::now();
     auto durationParallel = duration_cast<microseconds>(endParallel - startParallel);
     
-    // Print results
-    printComponents(parentParallel, g.numVertices);
-    
-    cout << "\n--- Performance Comparison ---\n";
-    cout << "Serial Version:\n";
-    cout << "  Iterations: " << serialIterations << "\n";
-    cout << "  Time: " << durationSerial.count() / 1000.0 << " ms\n";
-    
-    cout << "\nParallel Version (" << numThreads << " threads):\n";
+    cout << "Parallel execution completed!\n";
     cout << "  Iterations: " << parallelIterations << "\n";
     cout << "  Time: " << durationParallel.count() / 1000.0 << " ms\n";
+    
+    // Display results
+    printComponents(parentParallel, numVertices);
+    
+    // Performance comparison
+    cout << "\n=================================================\n";
+    cout << "   Performance Comparison\n";
+    cout << "=================================================\n";
     
     double speedup = (double)durationSerial.count() / durationParallel.count();
     double efficiency = speedup / numThreads * 100;
     
-    cout << "\nSpeedup: " << speedup << "x\n";
-    cout << "Efficiency: " << efficiency << "%\n";
-}
-
-// Test case 1: Small graph
-void testCase1(int numThreads) {
-    Graph g(10);
-    g.addEdge(0, 1);
-    g.addEdge(1, 2);
-    g.addEdge(2, 3);
-    g.addEdge(5, 6);
-    g.addEdge(6, 7);
-    g.addEdge(8, 9);
-    
-    comparePerformance(g, "TEST CASE 1: Small Graph", numThreads);
-}
-
-// Test case 2: Medium graph
-void testCase2(int numThreads) {
-    Graph g(50);
-    
-    // Create multiple components
-    for (int i = 0; i < 10; i++) {
-        g.addEdge(i, i + 1);
-    }
-    for (int i = 15; i < 25; i++) {
-        g.addEdge(i, i + 1);
-    }
-    for (int i = 30; i < 40; i++) {
-        g.addEdge(i, i + 1);
-    }
-    
-    comparePerformance(g, "TEST CASE 2: Medium Graph", numThreads);
-}
-
-// Test case 3: Large graph with dense connections
-void testCase3(int numThreads) {
-    Graph g(100);
-    
-    // Create a graph with several dense components
-    for (int comp = 0; comp < 5; comp++) {
-        int start = comp * 20;
-        int end = start + 20;
-        for (int i = start; i < end - 1; i++) {
-            for (int j = i + 1; j < end; j++) {
-                if ((i + j) % 3 == 0) {
-                    g.addEdge(i, j);
-                }
-            }
-        }
-    }
-    
-    comparePerformance(g, "TEST CASE 3: Large Dense Graph", numThreads);
-}
-
-// Test case 4: Very large graph for scalability testing
-void testCase4(int numThreads) {
-    Graph g(1000);
-    
-    // Create multiple components with varying connectivity
-    for (int i = 0; i < 999; i++) {
-        if (i % 50 < 25) {
-            g.addEdge(i, i + 1);
-        }
-        if (i % 100 < 50 && i + 10 < 1000) {
-            g.addEdge(i, i + 10);
-        }
-    }
-    
-    comparePerformance(g, "TEST CASE 4: Very Large Graph (Scalability Test)", numThreads);
-}
-
-// Thread scaling analysis
-void threadScalingAnalysis() {
-    cout << "\n\n========== THREAD SCALING ANALYSIS ==========\n";
-    
-    // Create a fixed graph
-    Graph g(500);
-    for (int i = 0; i < 499; i++) {
-        if (i % 25 < 15) {
-            g.addEdge(i, i + 1);
-        }
-        if (i % 50 < 25 && i + 5 < 500) {
-            g.addEdge(i, i + 5);
-        }
-    }
-    
-    cout << "Graph: " << g.numVertices << " vertices, " << g.edges.size() << " edges\n";
-    cout << "\nThread Count | Time (ms) | Speedup | Efficiency\n";
-    cout << "-------------|-----------|---------|------------\n";
-    
-    double baselineTime = 0;
-    
-    for (int threads : {1, 2, 4, 8, 16}) {
-        Graph gCopy = g;
-        int iterations = 0;
-        
-        auto start = high_resolution_clock::now();
-        vector<int> parent = findConnectedComponentsParallel(gCopy, iterations, threads);
-        auto end = high_resolution_clock::now();
-        
-        auto duration = duration_cast<microseconds>(end - start);
-        double timeMs = duration.count() / 1000.0;
-        
-        if (threads == 1) {
-            baselineTime = timeMs;
-        }
-        
-        double speedup = baselineTime / timeMs;
-        double efficiency = speedup / threads * 100;
-        
-        printf("%12d | %9.3f | %7.2fx | %9.1f%%\n", 
-               threads, timeMs, speedup, efficiency);
-    }
-}
-
-int main() {
-    cout << "=================================================\n";
-    cout << "  Parallel Connected Components Algorithm B\n";
-    cout << "  OpenMP Implementation\n";
-    cout << "  Based on Liu & Tarjan (2022)\n";
-    cout << "=================================================\n";
-    
-    // Get number of available threads
-    int maxThreads = omp_get_max_threads();
-    cout << "\nSystem has " << maxThreads << " threads available\n";
-    
-    int numThreads = min(8, maxThreads);  // Use up to 8 threads
-    cout << "Using " << numThreads << " threads for testing\n";
-    
-    // Run test cases
-    testCase1(numThreads);
-    testCase2(numThreads);
-    testCase3(numThreads);
-    testCase4(numThreads);
-    
-    // Thread scaling analysis
-    threadScalingAnalysis();
+    cout << "Serial Time:    " << durationSerial.count() / 1000.0 << " ms\n";
+    cout << "Parallel Time:  " << durationParallel.count() / 1000.0 << " ms\n";
+    cout << "Speedup:        " << speedup << "x\n";
+    cout << "Efficiency:     " << efficiency << "%\n";
+    cout << "Threads Used:   " << numThreads << "\n";
     
     cout << "\n=================================================\n";
-    cout << "   All tests completed successfully!\n";
+    cout << "   Algorithm completed successfully!\n";
     cout << "=================================================\n";
     
     return 0;

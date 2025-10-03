@@ -94,52 +94,6 @@ Output: Label array where label[v] is the component ID for vertex v
 3. RETURN parent array as component labels
 ```
 
-#### Flowchart
-
-```
-                    [START]
-                       |
-                       v
-            [Initialize: parent[v] = v for all v]
-                       |
-                       v
-                  [changed = false]
-                       |
-                       v
-        +----------[DIRECT-CONNECT]----------+
-        |   For each edge {v,w}:             |
-        |   Update parent[v] or parent[w]    |
-        |   to minimum vertex                |
-        +------------------------------------+
-                       |
-                       v
-        +----------[SHORTCUT]----------------+
-        |   For each vertex v:               |
-        |   parent[v] = parent[parent[v]]    |
-        +------------------------------------+
-                       |
-                       v
-        +----------[ALTER]-------------------+
-        |   Update edges based on            |
-        |   current parent values            |
-        +------------------------------------+
-                       |
-                       v
-                  <changed?>
-                   /      \
-                 Yes       No
-                  |         |
-                  +---------+
-                            |
-                            v
-                [Output: Component Labels]
-                            |
-                            v
-                         [END]
-```
-
----
-
 ### 3. Solution Demonstration
 
 #### Test Case 1: Simple Linear Graph
