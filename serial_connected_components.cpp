@@ -1,3 +1,5 @@
+// Name: Jayanth P
+// Roll Number: 2023BCS0040
 #include <bits/stdc++.h>
 #include <omp.h>
 using namespace std;
@@ -97,6 +99,8 @@ void printComponents(const vector<int>& parent, int n) {
 }
 
 int main() {
+    cout << "Name: Jayanth P\n";
+    cout << "Roll Number: 2023BCS0040\n";
     int numVertices, numEdges;
     cin >> numVertices >> numEdges;
     Graph g(numVertices);

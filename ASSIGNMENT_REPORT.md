@@ -584,27 +584,6 @@ Let f = fraction of parallelizable code ≈ 0.95 (95%)
 
 ---
 
-## Conclusion
-
-### Key Findings:
-
-1. **Algorithm Effectiveness:**
-
-   - Algorithm B successfully finds connected components
-   - O(m log² n) time complexity is practical
-   - Converges quickly for real-world graphs
-
-2. **Parallelization Benefits:**
-
-   - Significant speedup with OpenMP (5-10x with 8-16 threads)
-   - Good scalability for medium to large graphs
-   - Diminishing returns beyond 16 threads
-
-3. **Performance Factors:**
-   - Graph structure affects iteration count
-   - Edge distribution impacts load balancing
-   - Memory access patterns affect cache performance
-
 ### References:
 
 1. Sixue Cliff Liu and Robert Endre Tarjan. "Simple Concurrent Connected Components Algorithms." ACM Trans. Parallel Comput. 9, 2, Article 9 (August 2022).
@@ -612,5 +591,3 @@ Let f = fraction of parallelizable code ≈ 0.95 (95%)
 3. GitHub Repository: https://github.com/mehanix/Algorithm-B-OpenMP
 
 ---
-
-_Assignment completed for CSS311 - Parallel and Distributed Computing_
