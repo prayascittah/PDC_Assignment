@@ -8,10 +8,6 @@ using namespace std;
 struct Edge {
     int src, dest;
     Edge(int s, int d) : src(s), dest(d) {}
-    bool operator==(const Edge& other) const {
-        return (src == other.src && dest == other.dest) ||
-               (src == other.dest && dest == other.src);
-    }
 };
 
 // Graph class
