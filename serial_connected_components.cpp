@@ -59,10 +59,8 @@ bool shortcut(vector<int>& parent) {
 void alter(vector<int>& parent, vector<Edge>& edges) {
     vector <Edge> newEdges;
     for (auto& edge : edges) {
-        int v = edge.src;
-        int w = edge.dest;
-        int pv = parent[v];
-        int pw = parent[w];
+        int v = edge.src, w = edge.dest;
+        int pv = parent[v], pw = parent[w];
         if (pv != pw) newEdges.push_back(Edge(pv, pw));
     }
     edges = newEdges;
@@ -110,9 +108,9 @@ int main() {
     double end = omp_get_wtime();
     double duration_ms = (end - start) * 1000.0;
 
-    printComponents(parent, g.numVertices);
     cout << "Iterations: " << iterations << "\n";
     cout << "Execution Time: " << duration_ms << " ms\n";
+    printComponents(parent, g.numVertices);
     return 0;
 }
 

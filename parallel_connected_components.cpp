@@ -22,10 +22,6 @@ public:
             edges.push_back(Edge(u, v));
         }
     }
-    void printGraph() {
-        cout << "Graph: " << numVertices << " vertices, " 
-             << edges.size() << " edges\n";
-    }
 };
 
 // Parallel Direct-Connect operation with OpenMP
@@ -79,10 +75,8 @@ void alterParallel(vector<int>& parent, vector<Edge>& edges, int numThreads) {
     vector<bool> toDelete(edges.size(), false);
     #pragma omp parallel for num_threads(numThreads)
     for (int i = 0; i < edges.size(); i++) {
-        int v = edges[i].src;
-        int w = edges[i].dest;
-        int pv = parent[v];
-        int pw = parent[w];
+        int v = edges[i].src, w = edges[i].dest;
+        int pv = parent[v], pw = parent[w];
         if (pv == pw) toDelete[i] = true;
         else {
             edges[i].src = pv;
@@ -134,7 +128,6 @@ int main() {
     cout << "Roll Number: 2023BCS0040\n";
     int numVertices, numEdges;
     cin >> numVertices >> numEdges;
-    if (numVertices <= 0 || numEdges < 0) return 1;
     Graph g(numVertices);
     for (int i = 0; i < numEdges; i++) {
         int u, v; cin >> u >> v;
@@ -142,7 +135,6 @@ int main() {
     }
     int maxThreads = omp_get_max_threads();
     int numThreads; cin >> numThreads;
-    if (numThreads <= 0 || numThreads > maxThreads) numThreads = min(8, maxThreads);
     Graph gParallel = g;
     int parallelIterations = 0;
     double startParallel = omp_get_wtime();
