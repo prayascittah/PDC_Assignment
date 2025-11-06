@@ -118,9 +118,37 @@ vector<int> findConnectedComponentsParallel(Graph& g, int& iterations, int numTh
 // Helper function to print components
 void printComponents(const vector<int>& parent, int n) {
     cout << "Vertex : Parent (Component)\n";
-    for (int i = 0; i < n; i++) {
-        cout << i << " : " << parent[i] << "\n";
-    }
+        // Build component groups
+        map<int, vector<int>> components;
+        for (int i = 0; i < n; i++) {
+            components[parent[i]].push_back(i+1); // 1-based for output
+        }
+
+        // Reverse map: vertex -> component set
+        map<int, string> vertexToComponent;
+        for (const auto& comp : components) {
+            if (comp.second.size() == 1) {
+                vertexToComponent[comp.second[0]] = "Singleton";
+            } else {
+                stringstream ss;
+                ss << "{";
+                for (size_t i = 0; i < comp.second.size(); ++i) {
+                    ss << comp.second[i];
+                    if (i + 1 < comp.second.size()) ss << ", ";
+                }
+                ss << "}";
+                for (int v : comp.second) {
+                    vertexToComponent[v] = ss.str();
+                }
+            }
+        }
+
+        // Print table header
+        cout << "Vertex\t\tParent\t\tComponent\n";
+        for (int i = 0; i < n; i++) {
+            int v = i+1;
+            cout << "  " << v << "\t\t  " << parent[i]+1 << "\t\t" << vertexToComponent[v] << "\n";
+        }
 }
 
 int main() {
@@ -131,7 +159,7 @@ int main() {
     Graph g(numVertices);
     for (int i = 0; i < numEdges; i++) {
         int u, v; cin >> u >> v;
-        g.addEdge(u, v);
+        g.addEdge(u - 1, v - 1 );
     }
     int maxThreads = omp_get_max_threads();
     int numThreads; cin >> numThreads;
