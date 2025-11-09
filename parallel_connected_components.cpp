@@ -118,18 +118,12 @@ vector<int> findConnectedComponentsParallel(Graph& g, int& iterations, int numTh
 // Helper function to print components
 void printComponents(const vector<int>& parent, int n) {
     cout << "Vertex : Parent (Component)\n";
-        // Build component groups
         map<int, vector<int>> components;
-        for (int i = 0; i < n; i++) {
-            components[parent[i]].push_back(i+1); // 1-based for output
-        }
-
-        // Reverse map: vertex -> component set
+        for (int i = 0; i < n; i++) components[parent[i]].push_back(i+1);
         map<int, string> vertexToComponent;
         for (const auto& comp : components) {
-            if (comp.second.size() == 1) {
-                vertexToComponent[comp.second[0]] = "Singleton";
-            } else {
+            if (comp.second.size() == 1)  vertexToComponent[comp.second[0]] = "Singleton";
+            else {
                 stringstream ss;
                 ss << "{";
                 for (size_t i = 0; i < comp.second.size(); ++i) {
@@ -137,17 +131,15 @@ void printComponents(const vector<int>& parent, int n) {
                     if (i + 1 < comp.second.size()) ss << ", ";
                 }
                 ss << "}";
-                for (int v : comp.second) {
-                    vertexToComponent[v] = ss.str();
-                }
+                for (int v : comp.second) vertexToComponent[v] = ss.str();
             }
         }
 
         // Print table header
         cout << "Vertex\t\tParent\t\tComponent\n";
         for (int i = 0; i < n; i++) {
-            int v = i+1;
-            cout << "  " << v << "\t\t  " << parent[i]+1 << "\t\t" << vertexToComponent[v] << "\n";
+            int v = i + 1;
+            cout << "  " << v << "\t\t  " << parent[i] + 1 << "\t\t" << vertexToComponent[v] << "\n";
         }
 }
 

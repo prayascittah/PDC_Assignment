@@ -9,7 +9,7 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        mono: ["var(--font-fira-mono)", "monospace"],
+        mono: ["var(--font-geist-mono)", "monospace"],
       },
     },
   },
